@@ -1,34 +1,27 @@
-"use client";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
-export const SearchPerson = () => {
-  const [users, setUsers] = useState([
-    { id: 1, name: "Владислав", age: 25 },
-    { id: 2, name: "Настя", age: 18 },
-    { id: 3, name: "Карина", age: 20 },
-    { id: 4, name: "Степа", age: 32 },
-    { id: 5, name: "Вова", age: 34 },
-  ]);
-
+export const SearchPerson = ({ users, setUsers }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [userAdd, setUser] = useState("");
   const [ageAdd, setAge] = useState("");
 
-
-
   const deleteUser = (id) => {
-    setUsers(users.filter(user => user.id!=id))
+    setUsers(users.filter(user => user.id !== id));
   };
 
-
-  const addnewUser = (userAdd , ageAdd) =>{
+  const addnewUser = () => {
+    if (!userAdd.trim() || !ageAdd) return; 
     const people = {
-        id : Date.now(),
+        id: Date.now(), 
         name: userAdd,
-        age:Number(ageAdd)
-    }
-    setUsers([...users ,people ]);
-  }
+        age: Number(ageAdd)
+    };
+    setUsers([...users, people]); 
+    setUser(""); 
+    setAge("");
+  };
+
   const filterUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -36,51 +29,48 @@ export const SearchPerson = () => {
   );
 
   return (
-    <div style={{ padding: "20px" }}>
-      <p>Поиск и управление сотрудниками</p>
+    <div style={{ padding: "20px", color: "white" }}>
+      <h2>Поиск сотрудников</h2>
       <input
         type="text"
-        placeholder="Поиск..."
+        placeholder="Поиск по имени или возрасту..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
+        style={{ padding: "8px", width: "250px", marginBottom: "20px" }}
       />
-      <p>Добавить нового пользователя</p>
-      <input
-        type="text"
-        placeholder="Поиск..."
-        value={userAdd}
-        onChange={(e) => setUser(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Поиск..."
-        value={ageAdd}
-        onChange={(e) => setAge(e.target.value)}
-      />
-     <button 
-                onClick={() => addnewUser(userAdd , ageAdd)}
-                style={{ cursor: "pointer", color: "green" }}
-              >
-                Добавить
-              </button>
+
+      <div style={{ marginBottom: "30px", padding: "15px", border: "1px solid #444" }}>
+        <h4>Добавить нового сотрудника</h4>
+        <input
+          type="text"
+          placeholder="Имя"
+          value={userAdd}
+          onChange={(e) => setUser(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="Возраст"
+          value={ageAdd}
+          onChange={(e) => setAge(e.target.value)}
+          style={{ marginLeft: "10px" }}
+        />
+        <button onClick={addnewUser} style={{ color: "green", marginLeft: "10px", cursor: "pointer" }}>
+          Добавить
+        </button>
+      </div>
+
       <ul>
-        {filterUsers.length > 0 ? (
-          filterUsers.map((user) => (
-            <li key={user.id} style={{ marginBottom: "10px", display: "flex", gap: "10px" }}>
-              <span>{user.name} — {user.age} лет</span>
-              
-              {/* Кнопка удаления */}
-              <button 
-                onClick={() => deleteUser(user.id)}
-                style={{ cursor: "pointer", color: "red" }}
-              >
-                Удалить
-              </button>
-            </li>
-          ))
-        ) : (
-          <li style={{ color: "gray" }}>Список пуст или ничего не найдено</li>
-        )}
+        {filterUsers.map((user) => (
+          <li key={user.id} style={{ marginBottom: "10px", display: "flex", gap: "15px", alignItems: "center" }}>
+            <Link to={`/user/${user.id}`} style={{ color: "lightblue", fontWeight: "bold", textDecoration: "none" }}>
+              {user.name}
+            </Link>
+            <span>— {user.age} лет</span>
+            <button onClick={() => deleteUser(user.id)} style={{ color: "red", cursor: "pointer" }}>
+              Удалить
+            </button>
+          </li>
+        ))}
       </ul>
     </div>
   );
