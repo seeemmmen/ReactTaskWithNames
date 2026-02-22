@@ -10,19 +10,48 @@ export const SearchPerson = ({ users, setUsers }) => {
 
   useEffect(() => {
     console.log("Started");
-  });
-  const deleteUser = (id) => {
-    setUsers(users.filter(user => user.id !== id));
+  },[]);
+  const deleteUser = async (id) => {
+    try{
+      const response = await fetch(`http://localhost:3001/users/${id}` , {
+        method: 'DELETE',
+      })
+      if(response.ok){
+            setUsers(users.filter(user => user.id !== id));
+
+      }
+      else{
+        console.log("Can not delete user");
+      }
+    }catch(error){
+      console.log(error);
+    }
+
   };
 
-  const addnewUser = () => {
+  const addnewUser = async() => {
     if (!userAdd.trim() || !ageAdd) return; 
     const people = {
-        id: Date.now(), 
+        id: Date.now().toString(), 
         name: userAdd,
         age: Number(ageAdd)
     };
-    setUsers([...users, people]); 
+
+    try{
+      const response = await fetch("http://localhost:3001/users" , {
+        method:'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(people)
+      })
+      if(response.ok){
+        setUsers([...users, people]); 
+      }
+      const data = await response.json();
+      console.log(data);
+
+    }catch(error){
+      console.log(error)
+    }
     setUser(""); 
     setAge("");
   };

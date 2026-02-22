@@ -5,22 +5,25 @@ import { UserDetail } from './companent/UserDetail';
 import './App.css';
 
 function App() {
-  const [users, setUsers] = useState(() => {
-    const savedata = localStorage.getItem("savedata");
-    return savedata?JSON.parse(savedata):
-    [
-    { id: 1, name: "Владислав", age: 25 },
-    { id: 2, name: "Настя", age: 18 },
-    { id: 3, name: "Карина", age: 20 },
-    { id: 4, name: "Степа", age: 32 },
-    { id: 5, name: "Вова", age: 34 },
-  ];
-  });
+  const [users, setUsers] = useState([]);
+
+  const API_URL = "http://localhost:3001/users";
 
   useEffect(() =>{
-    localStorage.setItem("savedata" , JSON.stringify(users))
-  },[users]);
+    const getUsers = async()=>{
+      try{
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        setUsers(data)
 
+
+      }
+      catch(error){
+          console.error("Проверь, запущен ли npx json-server!", error);
+      }
+    }
+    getUsers();
+  } , [])
   
   return (
     <BrowserRouter>
@@ -28,7 +31,9 @@ function App() {
         <Route path="/" element={
           <SearchPerson users={users} setUsers={setUsers} />
         } />
-        
+        {users.map((element)=>{
+          console.log(element);
+        })}
         <Route path="/user/:id" element={
           <UserDetail users={users} />
         } />
