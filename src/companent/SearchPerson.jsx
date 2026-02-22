@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState , useEffect} from "react";
 import { Link } from "react-router-dom";
 
 export const SearchPerson = ({ users, setUsers }) => {
@@ -6,6 +6,11 @@ export const SearchPerson = ({ users, setUsers }) => {
   const [userAdd, setUser] = useState("");
   const [ageAdd, setAge] = useState("");
 
+
+
+  useEffect(() => {
+    console.log("Started");
+  });
   const deleteUser = (id) => {
     setUsers(users.filter(user => user.id !== id));
   };
