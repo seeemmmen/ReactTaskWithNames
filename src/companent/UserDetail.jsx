@@ -1,34 +1,25 @@
 import { useParams, Link } from "react-router-dom";
+import { useContext } from "react";
+import { AppContext } from "../context/AppContext";
 
-export const UserDetail = ({ users }) => {
+export const UserDetail = () => {
   const { id } = useParams();
+  const { users, isDark } = useContext(AppContext); 
 
-  if (!users || users.length === 0) {
-    return <div style={{ color: "white", padding: "20px" }}>Загрузка данных...</div>;
-  }
-  const user = users.find((e) => String(e.id) === String(id));
+  const user = users.find((u) => String(u.id) === String(id));
 
-  if (!user) {
-    return (
-      <div style={{ color: "white", padding: "20px" }}>
-        <h2>Сотрудник не найден 🔍</h2>
-        <Link to="/" style={{ color: "lightblue" }}>Вернуться к списку</Link>
-      </div>
-    );
-  }
+  if (!user) return <div style={{ color: isDark ? "white" : "black" }}>Загрузка или не найден...</div>;
 
   return (
-    <div style={{ padding: "20px", color: "white" }}>
-      <h2>Карточка сотрудника</h2>
-      <div style={{ background: "#333", padding: "20px", borderRadius: "10px" }}>
-        <p>ID пользователя: <span style={{ color: "gold" }}>{user.id}</span></p>
-        <p>Имя пользователя: <span style={{ color: "gold" }}>{user.name}</span></p>
-        <p>Возраст: <span style={{ color: "gold" }}>{user.age} лет</span></p>
-      </div>
-      
-      <Link to="/" style={{ color: "lightblue", display: "block", marginTop: "20px" }}>
-        ← Назад к списку
-      </Link>
+    <div style={{ 
+      padding: "20px", 
+      backgroundColor: isDark ? "#1a1a1a" : "#fff", 
+      color: isDark ? "white" : "black",
+      minHeight: "100vh" 
+    }}>
+      <h2>Карточка: {user.name}</h2>
+      <p>Возраст: {user.age}</p>
+      <Link to="/" style={{ color: "lightblue" }}>← Назад</Link>
     </div>
   );
 };

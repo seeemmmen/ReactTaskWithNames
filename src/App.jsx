@@ -1,45 +1,35 @@
-import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { SearchPerson } from './companent/SearchPerson';
-import { UserDetail } from './companent/UserDetail';
-import './App.css';
-
-function App() {
-  const [users, setUsers] = useState([]);
-
-  const API_URL = "http://localhost:3001/users";
-
-  useEffect(() =>{
-    const getUsers = async()=>{
-      try{
-        const response = await fetch(API_URL);
-        const data = await response.json();
-        setUsers(data)
+import { AppContext, AppProvider } from "./context/AppContext";
+import { SearchPerson } from "./companent/SearchPerson";
+import { UserDetail } from "./companent/UserDetail";
+import "./App.css";
+import { useContext } from "react";
 
 
-      }
-      catch(error){
-          console.error("Проверь, запущен ли npx json-server!", error);
-      }
-    }
-    getUsers();
-  } , [])
-  
+
+
+const ThemeWrapper = ({children}) =>{
+  const {isDark} = useContext(AppContext); 
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={
-          <SearchPerson users={users} setUsers={setUsers} />
-        } />
-        {users.map((element)=>{
-          console.log(element);
-        })}
-        <Route path="/user/:id" element={
-          <UserDetail users={users} />
-        } />
-      </Routes>
-    </BrowserRouter>
-  );    
+    <div className={`app-container ${isDark ? "dark" : "light"}`}>
+      {children}
+    </div>
+  );
+}
+function App() {
+  return (
+    <AppProvider>
+    <ThemeWrapper>
+         <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<SearchPerson />} />
+          <Route path="/user/:id" element={<UserDetail />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeWrapper>
+    </AppProvider>
+  );
 }
 
 export default App;

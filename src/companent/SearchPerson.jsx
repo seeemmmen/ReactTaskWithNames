@@ -1,108 +1,70 @@
-import { useState , useEffect} from "react";
+import { useState, useContext } from "react";
 import { Link } from "react-router-dom";
+import { AppContext } from "../context/AppContext";
 
-export const SearchPerson = ({ users, setUsers }) => {
+export const SearchPerson = () => {
+  const { users, setUsers, isDark, toggleTheme } = useContext(AppContext);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [userAdd, setUser] = useState("");
   const [ageAdd, setAge] = useState("");
 
-
-
-  useEffect(() => {
-    console.log("Started");
-  },[]);
   const deleteUser = async (id) => {
-    try{
-      const response = await fetch(`http://localhost:3001/users/${id}` , {
-        method: 'DELETE',
-      })
-      if(response.ok){
-            setUsers(users.filter(user => user.id !== id));
-
-      }
-      else{
-        console.log("Can not delete user");
-      }
-    }catch(error){
-      console.log(error);
-    }
-
+    try {
+      await fetch(`http://localhost:3001/users/${id}`, { method: "DELETE" });
+      setUsers(users.filter((u) => u.id !== id));
+    } catch (e) { console.error(e); }
   };
 
-  const addnewUser = async() => {
-    if (!userAdd.trim() || !ageAdd) return; 
-    const people = {
-        id: Date.now().toString(), 
-        name: userAdd,
-        age: Number(ageAdd)
-    };
-
-    try{
-      const response = await fetch("http://localhost:3001/users" , {
-        method:'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(people)
-      })
-      if(response.ok){
-        setUsers([...users, people]); 
-      }
-      const data = await response.json();
-      console.log(data);
-
-    }catch(error){
-      console.log(error)
-    }
-    setUser(""); 
-    setAge("");
+  const addnewUser = async () => {
+    if (!userAdd.trim() || !ageAdd) return;
+    const newUser = { id: Date.now().toString(), name: userAdd, age: Number(ageAdd) };
+    try {
+      await fetch("http://localhost:3001/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newUser),
+      });
+      setUsers([...users, newUser]);
+    } catch (e) { console.error(e); }
+    setUser(""); setAge("");
   };
 
-  const filterUsers = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.age.toString().includes(searchQuery)
+  const filtered = users.filter(u => 
+    u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    u.age.toString().includes(searchQuery)
   );
 
   return (
-    <div style={{ padding: "20px", color: "white" }}>
-      <h2>Поиск сотрудников</h2>
-      <input
-        type="text"
-        placeholder="Поиск по имени или возрасту..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        style={{ padding: "8px", width: "250px", marginBottom: "20px" }}
+    <div style={{ 
+      padding: "20px", 
+      backgroundColor: isDark ? "#1a1a1a" : "#fff", 
+      color: isDark ? "#fff" : "#000",
+      minHeight: "100vh" 
+    }}>
+      <button onClick={toggleTheme} style={{ marginBottom: "20px" }}>
+        {isDark ? "☀️ Светлая тема" : "🌙 Темная тема"}
+      </button>
+
+      <h2>Сотрудники ({users.length})</h2>
+      <input 
+        placeholder="Поиск..." 
+        value={searchQuery} 
+        onChange={(e) => setSearchQuery(e.target.value)} 
       />
 
-      <div style={{ marginBottom: "30px", padding: "15px", border: "1px solid #444" }}>
-        <h4>Добавить нового сотрудника</h4>
-        <input
-          type="text"
-          placeholder="Имя"
-          value={userAdd}
-          onChange={(e) => setUser(e.target.value)}
-        />
-        <input
-          type="number"
-          placeholder="Возраст"
-          value={ageAdd}
-          onChange={(e) => setAge(e.target.value)}
-          style={{ marginLeft: "10px" }}
-        />
-        <button onClick={addnewUser} style={{ color: "green", marginLeft: "10px", cursor: "pointer" }}>
-          Добавить
-        </button>
+      <div style={{ margin: "20px 0", border: "1px solid #444", padding: "10px" }}>
+        <input placeholder="Имя" value={userAdd} onChange={(e) => setUser(e.target.value)} />
+        <input placeholder="Возраст" type="number" value={ageAdd} onChange={(e) => setAge(e.target.value)} />
+        <button onClick={addnewUser}>Добавить</button>
       </div>
 
       <ul>
-        {filterUsers.map((user) => (
-          <li key={user.id} style={{ marginBottom: "10px", display: "flex", gap: "15px", alignItems: "center" }}>
-            <Link to={`/user/${user.id}`} style={{ color: "lightblue", fontWeight: "bold", textDecoration: "none" }}>
-              {user.name}
-            </Link>
-            <span>— {user.age} лет</span>
-            <button onClick={() => deleteUser(user.id)} style={{ color: "red", cursor: "pointer" }}>
-              Удалить
-            </button>
+        {filtered.map(u => (
+          <li key={u.id} style={{ marginBottom: "10px" }}>
+            <Link to={`/user/${u.id}`} style={{ color: "lightblue" }}>{u.name}</Link>
+            <span> — {u.age} лет </span>
+            <button onClick={() => deleteUser(u.id)} style={{ color: "red" }}>Удалить</button>
           </li>
         ))}
       </ul>
